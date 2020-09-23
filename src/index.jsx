@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from 'react';
 import { render } from 'react-dom';
 import { LoremIpsum } from 'lorem-ipsum';
@@ -31,8 +32,9 @@ const makePosts = async () => {
   }
   const smallImages = await Promise.all(smallImagePromises);
   const largeImages = await Promise.all(largeImagePromises);
+  const tags = ['AI', 'Chemistry', 'Space', 'Robotics', 'Physics'];
   const postPromises = [];
-  for (let i = 0; i < 60; i += 1) {
+  for (let i = 0; i < 80; i += 1) {
     const newPost = {
       author: 'Michael M.',
       content: lorem.generateParagraphs(7),
@@ -41,7 +43,7 @@ const makePosts = async () => {
       largeImage: largeImages[i % 10],
       indexName: `sample-post-${i}`,
       postedOn: subDays(new Date(), i),
-      tag: 'post',
+      tag: tags[i % 5],
       title: `Sample Post ${i}`,
     };
     postPromises.push(firebase.firestore().collection('/posts').add(newPost));

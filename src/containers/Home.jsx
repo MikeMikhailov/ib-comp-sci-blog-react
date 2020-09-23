@@ -75,8 +75,6 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   // Status of post laoding
   const [loadedPosts, setLoadedPosts] = useState(false);
-  // Pagination tracking
-  const [startDoc, setStartDoc] = useState(null);
   // Page number
   const [currentPage, setCurrentPage] = useState(+history.location.pathname.split('/')[2] || 1);
   // Array of loaded tags
@@ -85,7 +83,8 @@ const Home = () => {
   const [currentTagFilter, setCurrentTagFilter] = useState(
     history.location.search.split('=')[1] || 'All',
   );
-  // TODO: Work on pagination (going back from page > 3 is broken)
+  // First posts of all pages >= 2
+  const [lastPosts, setLastPosts] = useState([null, null]);
   useEffect(() => {
     // Allows us to control unsubscribing
     let isSubscribed = true;
@@ -95,7 +94,7 @@ const Home = () => {
         postsQuery = postsQuery.where('tag', '==', currentTagFilter);
       }
       if (currentPage > 1) {
-        postsQuery = postsQuery.endBefore(startDoc);
+        postsQuery = postsQuery.endBefore(lastPosts[currentPage]);
       }
       const postsQuerySnapshot = await postsQuery.limitToLast(10).get();
       const loadedPostsArray = postsQuerySnapshot.docs.reverse().map((post) => {
@@ -115,8 +114,12 @@ const Home = () => {
         if (isSubscribed) {
           setLoadedPosts(true);
           setPosts([...posts, ...loadedPostsArray]);
-          setStartDoc(postsQuerySnapshot.docs[0]);
           setTags([...new Set([...tags, ...loadedPostsArray.map((post) => post.tag)])]);
+          if (!lastPosts[currentPage + 1]) {
+            const modifiedLastPosts = [...lastPosts];
+            [modifiedLastPosts[currentPage + 1]] = postsQuerySnapshot.docs;
+            setLastPosts(modifiedLastPosts);
+          }
         }
       }, 200);
     };
@@ -132,6 +135,7 @@ const Home = () => {
     setCurrentTagFilter(location.search.split('=')[1] || 'All');
   });
   const handleTagFilterChange = (tag) => {
+    setLastPosts([null, null]);
     history.push(tag !== 'All' ? `/?tag=${tag}` : '/');
   };
   const handleForwardPageChange = () => {
