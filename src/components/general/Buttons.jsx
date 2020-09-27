@@ -7,7 +7,7 @@ const PrimaryButton = styled.button`
   border: none;
   box-sizing: border-box;
   margin: 0;
-  padding: 15px 45px;
+  padding: 15px 30px;
   text-align: center;
   cursor: pointer;
   transition-duration: 200ms;

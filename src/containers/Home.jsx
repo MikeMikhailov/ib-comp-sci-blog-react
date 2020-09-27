@@ -24,6 +24,7 @@ const MainText = styled(Text)`
 
 const TagContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   margin-bottom: 2.5rem;
   & > *:not(:last-child) {
     margin-right: 32px;
@@ -110,7 +111,7 @@ const Home = () => {
           id: post.id,
         };
       });
-      setTimeout(() => {
+      // setTimeout(() => {
         if (isSubscribed) {
           setLoadedPosts(true);
           setPosts([...posts, ...loadedPostsArray]);
@@ -121,7 +122,7 @@ const Home = () => {
             setLastPosts(modifiedLastPosts);
           }
         }
-      }, 200);
+      // }, 200);
     };
     fetchPosts();
     return () => {
@@ -136,17 +137,14 @@ const Home = () => {
   });
   const handleTagFilterChange = (tag) => {
     setLastPosts([null, null]);
-    history.push(tag !== 'All' ? `/?tag=${tag}` : '/');
+    history.push(tag !== 'All' ? `/page/1?tag=${tag}` : '/page/1');
   };
   const handleForwardPageChange = () => {
     const newPath = `/page/${currentPage + 1}${history.location.search}`;
     history.push(newPath);
   };
   const handleBackPageChange = () => {
-    const newPath =
-      currentPage !== 2
-        ? `/page/${currentPage - 1}${history.location.search}`
-        : `/${history.location.search}`;
+    const newPath = `/page/${currentPage - 1}${history.location.search}`;
     history.push(newPath);
   };
   return (

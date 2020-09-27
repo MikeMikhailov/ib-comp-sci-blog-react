@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { createGlobalStyle } from 'styled-components/macro';
 import { Normalize } from 'styled-normalize';
 import Home from '../containers/Home';
@@ -27,8 +27,11 @@ function App() {
         <Route path="/post/:id" exact>
           <SinglePost />
         </Route>
-        <Route path="/">
+        <Route path="/page">
           <Home />
+        </Route>
+        <Route path="/" exact>
+          <Redirect to="/page/1" />
         </Route>
       </Switch>
     </Router>

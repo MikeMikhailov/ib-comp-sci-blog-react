@@ -48,13 +48,13 @@ const Navbar = () => {
   return (
     <Container>
       <Navigation>
-        <LogoLink to="/">
+        <LogoLink to="/page/1">
           <Heading1>Neutrino</Heading1>
         </LogoLink>
         <Science height={32} color={primaryColor} />
       </Navigation>
       <Navigation>
-        <NavLinkStyled to="/" activeClassName="active" exact>
+        <NavLinkStyled to="/page/1" activeClassName="active" exact>
           Home
         </NavLinkStyled>
         <NavLinkStyled to="/about" activeClassName="active" exact>
