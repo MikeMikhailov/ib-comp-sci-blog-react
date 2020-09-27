@@ -14,7 +14,7 @@
   "dependencies": {
     "babel-plugin-macros": "^2.8.0",
     "date-fns": "^2.16.1",
-    "firebase": "^7.21.0",
+    "firebase": "^7.21.1",
     "lorem-ipsum": "^2.0.3",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
