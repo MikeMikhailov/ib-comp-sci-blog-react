@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components/macro';
-import firebase from '../utils/firebaseSetup';
+import ky from 'ky';
 import { Container, InnerContainer } from '../components/general/Containers';
 import { Heading2, Text } from '../components/general/Headings';
 import Navbar from '../components/general/Navbar';
@@ -74,55 +74,30 @@ const Home = () => {
   const history = useHistory();
   // Posts info
   const [posts, setPosts] = useState([]);
-  // Status of post laoding
+  // Status of post loading
   const [loadedPosts, setLoadedPosts] = useState(false);
   // Page number
-  const [currentPage, setCurrentPage] = useState(+history.location.pathname.split('/')[2] || 1);
+  const [currentPage, setCurrentPage] = useState(+history.location.pathname.split('/')[2]);
   // Array of loaded tags
   const [tags, setTags] = useState(['All']);
   // Current tag filter
   const [currentTagFilter, setCurrentTagFilter] = useState(
     history.location.search.split('=')[1] || 'All',
   );
-  // First posts of all pages >= 2
-  const [lastPosts, setLastPosts] = useState([null, null]);
   useEffect(() => {
     // Allows us to control unsubscribing
     let isSubscribed = true;
     const fetchPosts = async () => {
-      let postsQuery = firebase.firestore().collection('/posts').orderBy('postedOn', 'asc');
+      let requestURL = `https://zcs651o3y8.execute-api.eu-central-1.amazonaws.com/dev/posts?page=${currentPage}`;
       if (currentTagFilter !== 'All') {
-        postsQuery = postsQuery.where('tag', '==', currentTagFilter);
+        requestURL += `&tag=${currentTagFilter}`;
       }
-      if (currentPage > 1) {
-        postsQuery = postsQuery.endBefore(lastPosts[currentPage]);
+      const fetchedPostsArray = await ky.get(requestURL).json();
+      if (isSubscribed) {
+        setLoadedPosts(true);
+        setPosts([...fetchedPostsArray]);
+        setTags([...new Set([...tags, ...fetchedPostsArray.map((post) => post.tag)])]);
       }
-      const postsQuerySnapshot = await postsQuery.limitToLast(10).get();
-      const loadedPostsArray = postsQuerySnapshot.docs.reverse().map((post) => {
-        return {
-          author: post.data().author,
-          content: post.data().content,
-          description: post.data().description,
-          image: post.data().smallImage,
-          postedOn: post.data().postedOn.toDate(),
-          tag: post.data().tag,
-          title: post.data().title,
-          indexName: post.data().indexName,
-          id: post.id,
-        };
-      });
-      // setTimeout(() => {
-        if (isSubscribed) {
-          setLoadedPosts(true);
-          setPosts([...posts, ...loadedPostsArray]);
-          setTags([...new Set([...tags, ...loadedPostsArray.map((post) => post.tag)])]);
-          if (!lastPosts[currentPage + 1]) {
-            const modifiedLastPosts = [...lastPosts];
-            [modifiedLastPosts[currentPage + 1]] = postsQuerySnapshot.docs;
-            setLastPosts(modifiedLastPosts);
-          }
-        }
-      // }, 200);
     };
     fetchPosts();
     return () => {
@@ -136,7 +111,6 @@ const Home = () => {
     setCurrentTagFilter(location.search.split('=')[1] || 'All');
   });
   const handleTagFilterChange = (tag) => {
-    setLastPosts([null, null]);
     history.push(tag !== 'All' ? `/page/1?tag=${tag}` : '/page/1');
   };
   const handleForwardPageChange = () => {
@@ -174,16 +148,16 @@ const Home = () => {
               {posts.map((post, i) => {
                 return (
                   <Post
-                    key={post.id}
+                    key={post._id}
                     isHuge={i % 7 === 0}
                     author={post.author}
-                    content={post.content}
                     description={post.description}
                     image={post.image}
-                    postedOn={post.postedOn}
+                    postedOn={new Date(post.postedOn)}
                     tag={post.tag}
                     title={post.title}
                     indexName={post.indexName}
+                    readingTime={post.readingTime}
                   />
                 );
               })}

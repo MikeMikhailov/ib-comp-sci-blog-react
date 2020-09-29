@@ -90,8 +90,17 @@ const PostTimeData = styled.div`
   }
 `;
 
-const Post = ({ isHuge, author, content, description, image, postedOn, tag, title, indexName }) => {
-  const readingTime = `${Math.round(content.split(' ').length / 225)} min read`;
+const Post = ({
+  isHuge,
+  author,
+  readingTime,
+  description,
+  image,
+  postedOn,
+  tag,
+  title,
+  indexName,
+}) => {
   const postDataFormatted = `${formatDistance(new Date(), postedOn)} ago`;
   return (
     <Container isHuge={isHuge}>
@@ -107,7 +116,7 @@ const Post = ({ isHuge, author, content, description, image, postedOn, tag, titl
             <Text>{author}</Text>
             <PostTimeData>
               <Time color={grayColor} height={16} />
-              <Text color={grayColor}>{readingTime}</Text>
+              <Text color={grayColor}>{`${readingTime} min`}</Text>
               <Text color={grayColor}>|</Text>
               <Text color={grayColor}>{postDataFormatted}</Text>
             </PostTimeData>
@@ -121,7 +130,7 @@ const Post = ({ isHuge, author, content, description, image, postedOn, tag, titl
 Post.propTypes = {
   isHuge: PropTypes.bool,
   author: PropTypes.string.isRequired,
-  content: PropTypes.string.isRequired,
+  readingTime: PropTypes.number.isRequired,
   description: PropTypes.string.isRequired,
   image: PropTypes.string.isRequired,
   postedOn: PropTypes.instanceOf(Date).isRequired,
