@@ -116,7 +116,7 @@ const Post = ({
             <Text>{author}</Text>
             <PostTimeData>
               <Time color={grayColor} height={16} />
-              <Text color={grayColor}>{`${readingTime} min`}</Text>
+              <Text color={grayColor}>{`${readingTime} min read`}</Text>
               <Text color={grayColor}>|</Text>
               <Text color={grayColor}>{postDataFormatted}</Text>
             </PostTimeData>
