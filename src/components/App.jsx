@@ -27,7 +27,7 @@ function App() {
         <Route path="/post/:id" exact>
           <SinglePost />
         </Route>
-        <Route path="/page">
+        <Route path="/page/:number">
           <Home />
         </Route>
         <Route path="/" exact>

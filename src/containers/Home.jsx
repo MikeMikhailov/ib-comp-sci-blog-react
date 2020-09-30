@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components/macro';
 import ky from 'ky';
 import { Container, InnerContainer } from '../components/general/Containers';
@@ -71,13 +71,15 @@ const LoadMoreContainer = styled.div`
 `;
 
 const Home = () => {
+  const { number } = useParams();
+
   const history = useHistory();
   // Posts info
   const [posts, setPosts] = useState([]);
   // Status of post loading
   const [loadedPosts, setLoadedPosts] = useState(false);
   // Page number
-  const [currentPage, setCurrentPage] = useState(+history.location.pathname.split('/')[2]);
+  const [currentPage, setCurrentPage] = useState(+number);
   // Array of loaded tags
   const [tags, setTags] = useState(['All']);
   // Current tag filter
