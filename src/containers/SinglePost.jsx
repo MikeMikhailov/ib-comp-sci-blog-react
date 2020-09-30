@@ -110,7 +110,7 @@ const SinglePost = () => {
                 </PostTopData>
                 <PostBottomData>
                   <Time color={grayColor} height={16} />
-                  <Text color={grayColor}>{`${postData.readingTime} min`}</Text>
+                  <Text color={grayColor}>{`${postData.readingTime} min read`}</Text>
                   <Text color={grayColor}>|</Text>
                   <Text color={grayColor}>{postDateFormatted}</Text>
                 </PostBottomData>
