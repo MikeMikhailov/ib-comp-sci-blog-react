@@ -73,6 +73,7 @@ const PostImage = styled.img`
   border-radius: 4px;
   margin-bottom: 2rem;
   width: 100%;
+  max-height: 50vh;
   object-fit: cover;
 `;
 
