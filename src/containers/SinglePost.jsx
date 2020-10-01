@@ -84,7 +84,7 @@ const SinglePost = () => {
   useEffect(() => {
     const fetchPost = async () => {
       const fetchedPost = await ky
-        .get(`https://zcs651o3y8.execute-api.eu-central-1.amazonaws.com/dev/posts/${postId}`)
+        .get(` https://py89pcivba.execute-api.eu-central-1.amazonaws.com/dev/posts/${postId}`)
         .json();
       setTimeout(() => {
         setLoadedPost(true);

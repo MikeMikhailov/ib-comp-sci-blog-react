@@ -90,7 +90,7 @@ const Home = () => {
     // Allows us to control unsubscribing
     let isSubscribed = true;
     const fetchPosts = async () => {
-      let requestURL = `https://zcs651o3y8.execute-api.eu-central-1.amazonaws.com/dev/posts?page=${currentPage}`;
+      let requestURL = ` https://py89pcivba.execute-api.eu-central-1.amazonaws.com/dev/posts?page=${currentPage}`;
       if (currentTagFilter !== 'All') {
         requestURL += `&tag=${currentTagFilter}`;
       }
