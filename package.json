@@ -1,6 +1,7 @@
 {
   "name": "react_template",
   "version": "1.0.0",
+  "private": true,
   "main": "./src/index.jsx",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +11,6 @@
     "prettier": "prettier --config ./.prettierrc.yml --write \"./src/**/*.js?(x)\"",
     "eslint": "eslint -c ./.eslintrc.yml \"./src/**/*.js?(x)\""
   },
-  "license": "MIT",
   "dependencies": {
     "babel-plugin-macros": "^2.8.0",
     "date-fns": "^2.16.1",
