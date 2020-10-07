@@ -1,9 +1,9 @@
 /* eslint-disable react/no-array-index-key */
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components/macro';
 import { useParams } from 'react-router-dom';
-import { formatDistance } from 'date-fns';
-import ky from 'ky';
+import { formatDistance, fromUnixTime } from 'date-fns';
+import { useQuery, gql } from '@apollo/client';
 import { Container, InnerContainer } from '../components/general/Containers';
 import { Heading2, Heading5, Text } from '../components/general/Headings';
 import Navbar from '../components/general/Navbar';
@@ -77,48 +77,55 @@ const PostImage = styled.img`
   object-fit: cover;
 `;
 
+const GET_POST = gql`
+  query GetPage($id: ID!) {
+    post(id: $id) {
+      author
+      content
+      indexName
+      image
+      postedOn
+      tag
+      title
+      readingTime
+      _id
+    }
+  }
+`;
+
 const SinglePost = () => {
   const { id: postId } = useParams();
-  const [postData, setPostData] = useState({});
-  const [loadedPost, setLoadedPost] = useState(false);
-  useEffect(() => {
-    const fetchPost = async () => {
-      const fetchedPost = await ky
-        .get(` https://py89pcivba.execute-api.eu-central-1.amazonaws.com/dev/posts/${postId}`)
-        .json();
-      setTimeout(() => {
-        setLoadedPost(true);
-        setPostData(fetchedPost);
-      }, 200);
-    };
-    fetchPost();
-  }, []);
+  const { loading, data } = useQuery(GET_POST, {
+    variables: { id: postId },
+  });
   const postDateFormatted =
-    !!postData.postedOn && `${formatDistance(new Date(), new Date(postData.postedOn))} ago`;
+    !loading &&
+    data &&
+    `${formatDistance(new Date(), fromUnixTime(data.post.postedOn / 1000))} ago`;
   return (
     <Container>
       <InnerContainer>
         <Navbar />
-        {loadedPost ? (
+        {!loading ? (
           <>
             <PostInfo>
-              <PostTitle>{postData.title}</PostTitle>
+              <PostTitle>{data.post.title}</PostTitle>
               <PostMeta>
                 <PostTopData>
-                  <Text>{postData.author}</Text>
-                  <Heading5 color={primaryColor}>{`#${postData.tag}`}</Heading5>
+                  <Text>{data.post.author}</Text>
+                  <Heading5 color={primaryColor}>{`#${data.post.tag}`}</Heading5>
                 </PostTopData>
                 <PostBottomData>
                   <Time color={grayColor} height={16} />
-                  <Text color={grayColor}>{`${postData.readingTime} min read`}</Text>
+                  <Text color={grayColor}>{`${data.post.readingTime} min read`}</Text>
                   <Text color={grayColor}>|</Text>
                   <Text color={grayColor}>{postDateFormatted}</Text>
                 </PostBottomData>
               </PostMeta>
             </PostInfo>
-            <PostImage src={postData.image} />
-            {!!postData.content &&
-              postData.content.split('\n').map((paragraph, i) => {
+            <PostImage src={data.post.image} />
+            {!!data.post.content &&
+              data.post.content.split('\n').map((paragraph, i) => {
                 return (
                   <React.Fragment key={i}>
                     <Text>{paragraph}</Text>

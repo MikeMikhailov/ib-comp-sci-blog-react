@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import queryString from 'query-string';
 import styled from 'styled-components/macro';
-import ky from 'ky';
+import { fromUnixTime } from 'date-fns';
+import { useHistory, useParams } from 'react-router-dom';
+import { useQuery, gql } from '@apollo/client';
 import { Container, InnerContainer } from '../components/general/Containers';
 import { Heading2, Text } from '../components/general/Headings';
 import Navbar from '../components/general/Navbar';
@@ -70,58 +72,63 @@ const LoadMoreContainer = styled.div`
   }
 `;
 
+const GET_PAGE = gql`
+  query GetPage($pageNumber: Int, $pageSize: Int, $tag: String) {
+    posts(pageNumber: $pageNumber, pageSize: $pageSize, tag: $tag) {
+      hasMore
+      posts {
+        author
+        description
+        indexName
+        image
+        postedOn
+        tag
+        title
+        readingTime
+        _id
+      }
+    }
+  }
+`;
+
 const Home = () => {
   const { number } = useParams();
-
   const history = useHistory();
-  // Posts info
-  const [posts, setPosts] = useState([]);
-  // Status of post loading
-  const [loadedPosts, setLoadedPosts] = useState(false);
-  // Page number
   const [currentPage, setCurrentPage] = useState(+number);
-  // Array of loaded tags
   const [tags, setTags] = useState(['All']);
-  // Current tag filter
   const [currentTagFilter, setCurrentTagFilter] = useState(
-    history.location.search.split('=')[1] || 'All',
+    queryString.parse(history.location.search).tag || 'All',
   );
-  useEffect(() => {
-    // Allows us to control unsubscribing
-    let isSubscribed = true;
-    const fetchPosts = async () => {
-      let requestURL = ` https://py89pcivba.execute-api.eu-central-1.amazonaws.com/dev/posts?page=${currentPage}`;
-      if (currentTagFilter !== 'All') {
-        requestURL += `&tag=${currentTagFilter}`;
-      }
-      const fetchedPostsArray = await ky.get(requestURL).json();
-      if (isSubscribed) {
-        setLoadedPosts(true);
-        setPosts([...fetchedPostsArray]);
-        setTags([...new Set([...tags, ...fetchedPostsArray.map((post) => post.tag)])]);
-      }
-    };
-    fetchPosts();
-    return () => {
-      isSubscribed = false;
-    };
-  }, [currentPage, currentTagFilter]);
-  history.listen((location) => {
-    setPosts([]);
-    setLoadedPosts(false);
-    setCurrentPage(+location.pathname.split('/')[2] || 1);
-    setCurrentTagFilter(location.search.split('=')[1] || 'All');
+  const { loading, data } = useQuery(GET_PAGE, {
+    variables: {
+      pageNumber: currentPage,
+      pageSize: 28,
+      tag: currentTagFilter !== 'All' ? currentTagFilter : null,
+    },
   });
+
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current && !data) {
+      isInitialMount.current = false;
+    } else if (data) {
+      setTags([...new Set([...tags, ...data.posts.posts.map((post) => post.tag)])]);
+    }
+  }, [loading]);
   const handleTagFilterChange = (tag) => {
     history.push(tag !== 'All' ? `/page/1?tag=${tag}` : '/page/1');
+    setCurrentTagFilter(queryString.parse(history.location.search).tag || 'All');
+    setCurrentPage(1);
   };
   const handleForwardPageChange = () => {
     const newPath = `/page/${currentPage + 1}${history.location.search}`;
     history.push(newPath);
+    setCurrentPage(+history.location.pathname.split('/')[2] || 1);
   };
   const handleBackPageChange = () => {
     const newPath = `/page/${currentPage - 1}${history.location.search}`;
     history.push(newPath);
+    setCurrentPage(+history.location.pathname.split('/')[2] || 1);
   };
   return (
     <Container>
@@ -144,10 +151,10 @@ const Home = () => {
             </TagFilter>
           ))}
         </TagContainer>
-        {loadedPosts ? (
+        {!loading ? (
           <>
             <PostsRow>
-              {posts.map((post, i) => {
+              {data.posts.posts.map((post, i) => {
                 return (
                   <Post
                     key={post._id}
@@ -155,7 +162,7 @@ const Home = () => {
                     author={post.author}
                     description={post.description}
                     image={post.image}
-                    postedOn={new Date(post.postedOn)}
+                    postedOn={fromUnixTime(post.postedOn / 1000)}
                     tag={post.tag}
                     title={post.title}
                     indexName={post.indexName}
@@ -170,9 +177,11 @@ const Home = () => {
                   Previous page
                 </PrimaryButton>
               )}
-              <PrimaryButton onClick={handleForwardPageChange} type="button">
-                Next Page
-              </PrimaryButton>
+              {!loading && data.posts.hasMore && (
+                <PrimaryButton onClick={handleForwardPageChange} type="button">
+                  Next Page
+                </PrimaryButton>
+              )}
             </LoadMoreContainer>
           </>
         ) : (
