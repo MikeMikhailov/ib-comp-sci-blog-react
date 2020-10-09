@@ -27,7 +27,7 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          { loader: MiniCssExtractPlugin.loader, options: { hmr: true, esModule: true } },
+          { loader: MiniCssExtractPlugin.loader, options: { esModule: true } },
           { loader: 'css-loader', options: { sourceMap: true, esModule: true } },
         ],
       },
