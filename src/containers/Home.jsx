@@ -117,7 +117,7 @@ const Home = () => {
   }, [loading]);
   const handleTagFilterChange = (tag) => {
     history.push(tag !== 'All' ? `/page/1?tag=${tag}` : '/page/1');
-    setCurrentTagFilter(queryString.parse(history.location.search).tag || 'All');
+    setCurrentTagFilter(tag);
     setCurrentPage(1);
   };
   const handleForwardPageChange = () => {
