@@ -12,7 +12,7 @@ const PrimaryButton = styled.button`
   cursor: pointer;
   transition-duration: 200ms;
 
-  font-family: 'Raleway';
+  font-family: 'Raleway', sans-serif;
   font-style: normal;
   font-variation-settings: 'wght' 600;
   font-size: 1.5rem;

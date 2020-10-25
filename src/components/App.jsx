@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { createGlobalStyle } from 'styled-components/macro';
 import { Normalize } from 'styled-normalize';
 import { ApolloProvider } from '@apollo/client';
-import Home from '../containers/Home';
 import fontFaces from '../fonts/fontSetup';
-import SinglePost from '../containers/SinglePost';
 import apolloClient from '../utils/apolloSetup';
+import Loading from './general/Loading';
 
 const GlobalStyle = createGlobalStyle`
 ${fontFaces}
@@ -20,6 +19,9 @@ ${fontFaces}
 }
 `;
 
+const Home = React.lazy(() => import('../containers/Home'));
+const SinglePost = React.lazy(() => import('../containers/SinglePost'));
+
 function App() {
   return (
     <ApolloProvider client={apolloClient}>
@@ -28,10 +30,14 @@ function App() {
         <GlobalStyle />
         <Switch>
           <Route path="/post/:id" exact>
-            <SinglePost />
+            <Suspense fallback={<Loading width="100vw" height="100vh" />}>
+              <SinglePost />
+            </Suspense>
           </Route>
           <Route path="/page/:number">
-            <Home />
+            <Suspense fallback={<Loading width="100vw" height="100vh" />}>
+              <Home />
+            </Suspense>
           </Route>
           <Route path="/" exact>
             <Redirect to="/page/1" />
